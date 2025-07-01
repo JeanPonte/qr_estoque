@@ -10,7 +10,7 @@ import pygame
 
 # Analisador de argumentos
 ap = argparse.ArgumentParser()
-ap.add_argument("-o", "--output", type=str, default="resultado.csv", help="caminho que será salvo o arquivo .CSV") # esse é o arquivo que vai ser salvo com os dados que foram lidos.
+ap.add_argument("-o", "--output", type=str, default="qr_lido.csv", help="/dados_qr/qr_lido.csv") # esse é o arquivo que vai ser salvo com os dados que foram lidos.
 args = vars(ap.parse_args())
 
 # Iniciar a webcam

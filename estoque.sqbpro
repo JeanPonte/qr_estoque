@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="estoque.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2135"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="estoque" custom_title="0" dock_id="2" table="4,7:mainestoque"/><dock_state state="000000ff00000000fd00000001000000020000043b00000249fc0100000002fb000000160064006f0063006b00420072006f007700730065003101000000000000043b0000000000000000fb000000160064006f0063006b00420072006f007700730065003201000000000000043b0000011d00ffffff0000029e0000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="estoques" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="39"/><column index="2" value="81"/><column index="3" value="83"/><column index="4" value="81"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="Create Tables*">CREATE TABLE produtos (
+    id INTEGER PRIMARY KEY, -- SQLite só gera autoincremento se for exatamente assim
+    nome TEXT NOT NULL,
+    categoria TEXT, -- exemplos: papel, tinta, ribbon
+    descricao TEXT,
+    unidade TEXT, -- exemplos: &quot;un&quot;, &quot;m&quot;, &quot;kg&quot;, &quot;ml&quot;
+    codigo_qr TEXT NOT NULL UNIQUE, -- conteúdo do QR
+    data_cadastro DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE estoque (
+    id INTEGER PRIMARY KEY,
+    produto_id INTEGER,
+    quantidade REAL DEFAULT 0, -- SQLite não tem DECIMAL, usa REAL
+    localizacao TEXT,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+);
+CREATE TABLE movimentacoes (
+    id INTEGER PRIMARY KEY,
+    produto_id INTEGER,
+    tipo TEXT NOT NULL CHECK (tipo IN ('entrada', 'saida')),
+    quantidade REAL NOT NULL,
+    data_movimentacao DATETIME DEFAULT CURRENT_TIMESTAMP,
+    responsavel TEXT,
+    observacao TEXT,
+    FOREIGN KEY (produto_id) REFERENCES produtos(id)
+);
+CREATE TABLE usuarios (
+    id INTEGER PRIMARY KEY,
+    nome TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    senha_hash TEXT NOT NULL
+);
+</sql><sql name="Create Index*">CREATE INDEX idx_estoque_produto_id ON estoque(produto_id);
+CREATE INDEX idx_movimentacoes_produto_id ON movimentacoes(produto_id);
+</sql><sql name="Trigger Atualizar Lista*">-- Garante que o produto exista no estoque antes da movimentação
+CREATE TRIGGER if_not_exists_estoque
+AFTER INSERT ON movimentacoes
+BEGIN
+    INSERT INTO estoque (produto_id, quantidade)
+    SELECT NEW.produto_id, 0
+    WHERE NOT EXISTS (
+        SELECT 1 FROM estoque WHERE produto_id = NEW.produto_id
+    );
+END;
+
+-- Atualiza o estoque após movimentação de entrada
+CREATE TRIGGER atualiza_estoque_entrada
+AFTER INSERT ON movimentacoes
+WHEN NEW.tipo = 'entrada'
+BEGIN
+    UPDATE estoque
+    SET quantidade = quantidade + NEW.quantidade
+    WHERE produto_id = NEW.produto_id;
+END;
+
+-- Atualiza o estoque após movimentação de saída
+CREATE TRIGGER atualiza_estoque_saida
+AFTER INSERT ON movimentacoes
+WHEN NEW.tipo = 'saida'
+BEGIN
+    UPDATE estoque
+    SET quantidade = quantidade - NEW.quantidade
+    WHERE produto_id = NEW.produto_id;
+END;
+</sql><sql name="Exemplo*">INSERT INTO produtos (nome, categoria, descricao, unidade, codigo_qr) VALUES
+-- Matéria-prima
+('Bobina Térmica 80mm x 100m', 'bobina', 'Bobina térmica para impressão de recibos', 'un', 'QR1001'),
+('Bobina Couchê 90g 110mm', 'bobina', 'Bobina de papel couchê para etiquetas', 'kg', 'QR1002'),
+('Filme BOPP Transparente 30 mic', 'filme', 'Filme para laminação de etiquetas', 'kg', 'QR1003'),
+('Filme BOPP Fosco 40 mic', 'filme', 'Filme BOPP fosco para acabamento', 'kg', 'QR1004'),
+('Tinta UV Preta', 'tinta', 'Tinta UV preta para impressão digital', 'ml', 'QR1005'),
+('Tinta UV Branca', 'tinta', 'Tinta UV branca usada em substratos escuros', 'ml', 'QR1006'),
+('Adesivo Hotmelt 10kg', 'adesivo', 'Cola industrial em formato hotmelt', 'kg', 'QR1007'),
+('Liner Siliconado', 'papel', 'Papel siliconado para etiquetas adesivas', 'kg', 'QR1008'),
+('Ribbon Resin 110x74', 'ribbon', 'Ribbon resina para impressão durável', 'm', 'QR1009'),
+('Ribbon Cera 110x74', 'ribbon', 'Ribbon cera para impressão em papel couchê', 'm', 'QR1010'),
+
+-- Produtos acabados
+('Etiqueta Térmica 40x60mm', 'etiqueta', 'Etiqueta térmica sem ribbon', 'un', 'QR1011'),
+('Etiqueta Couchê 50x30mm', 'etiqueta', 'Etiqueta em papel couchê com adesivo', 'un', 'QR1012'),
+('Rolo de Etiquetas Adesivas 1000 un', 'etiqueta', 'Bobina com 1000 etiquetas adesivas', 'un', 'QR1013'),
+('Etiqueta BOPP Transparente 60x40mm', 'etiqueta', 'Etiqueta transparente resistente à água', 'un', 'QR1014'),
+('Etiqueta Vinil 100x150mm', 'etiqueta', 'Etiqueta de vinil para ambientes externos', 'un', 'QR1015'),
+
+-- Outros insumos
+('Luva Antiestática', 'equipamento', 'Luva usada na operação de impressoras', 'un', 'QR1016'),
+('Álcool Isopropílico 1L', 'limpeza', 'Produto para limpeza de cabeçotes térmicos', 'ml', 'QR1017'),
+('Espátula de Aplicação', 'equipamento', 'Ferramenta para aplicar etiquetas', 'un', 'QR1018'),
+('Caixa de Papelão 30x30x30', 'embalagem', 'Embalagem padrão para envio de etiquetas', 'un', 'QR1019'),
+('Plástico Bolha Rolo 100m', 'embalagem', 'Material de proteção para envio de produtos', 'm', 'QR1020');
+</sql><sql name="SQL 5*">SELECT * from produtos</sql><current_tab id="4"/></tab_sql></sqlb_project>
