@@ -1,0 +1,9 @@
+#TEMPS
+App_site/__pycache__/
+
+#Ambiente virtual
+.venv/
+
+#Banco de dados e arquivo do SQLite
+estoque.db
+estoque.sqbpro
