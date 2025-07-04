@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard AJAX</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .data {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+    .data th, .data td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    .data th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body class="p-4">
+
+  <h2 class="mb-4">Dashboard de Tabelas (AJAX)</h2>
+
+  <!-- Dropdown de tabelas -->
+  <div class="mb-3">
+    <label for="tabelaSelect" class="form-label">Escolha uma tabela:</label>
+    <select id="tabelaSelect" class="form-select" onchange="carregarTabela(this.value)">
+      <option selected disabled>-- Selecione uma tabela --</option>
+      {% for tabela in tabelas %}
+        <option value="{{ tabela }}">{{ tabela }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <!-- Div onde a tabela será carregada -->
+  <div id="tabelaResultado">
+    <p>Selecione uma tabela para visualizar os dados.</p>
+  </div>
+
+  <a href="{{ url_for('homepage') }}" class="btn btn-secondary mt-4">Voltar à Home</a>
+
+  <!-- JS AJAX -->
+  <script>
+    function carregarTabela(tabela) {
+      const tabelaResultado = document.getElementById('tabelaResultado');
+      tabelaResultado.innerHTML = '<p>Carregando...</p>';
+
+      fetch(`/carregar_tabela/${tabela}`)
+        .then(response => {
+          if (!response.ok) throw new Error('Erro ao carregar tabela.');
+          return response.text();
+        })
+        .then(html => {
+          tabelaResultado.innerHTML = html;
+        })
+        .catch(error => {
+          tabelaResultado.innerHTML = '<p class="text-danger">Erro ao carregar os dados.</p>';
+          console.error(error);
+        });
+    }
+  </script>
+
+</body>
+</html>

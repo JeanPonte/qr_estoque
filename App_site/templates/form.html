@@ -9,6 +9,8 @@
 <body>
 <div class="container mt-5">
     <h2>Registrar Movimentação</h2>
+    <div class="d-flex">
+    <a href="{{ url_for('homepage') }}" class="btn btn-secondary mt-4">Voltar à Home</a>
     <form action="/registrar_movimentacao" method="POST" class="mt-4">
         <div class="mb-3">
             <label for="codigo_qr" class="form-label">Código QR</label>

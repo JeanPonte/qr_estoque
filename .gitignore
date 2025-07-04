@@ -5,5 +5,8 @@ App_site/__pycache__/
 .venv/
 
 #Banco de dados e arquivo do SQLite
-estoque.db
-estoque.sqbpro
+database/
+instance/
+
+#Criar usuário para teste
+App_site/criar_usuario.py
