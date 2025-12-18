@@ -10,3 +10,6 @@ instance/
 
 #Criar usuário para teste
 App_site/criar_usuario.py
+
+#Dados Sensiveis
+/config_privado.py
