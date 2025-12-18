@@ -81,3 +81,16 @@ def registrar_movimentacao_no_banco(produto_id, tipo, quantidade, responsavel, o
     """, (produto_id, tipo, quantidade, responsavel, observacao, usuario_id))
     conn.commit()
     conn.close()
+
+def buscar_produto_por_codigo_ou_nome(query):
+    conn = conectar_estoque_db()
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT * FROM produtos 
+        WHERE codigo_qr = ? OR nome LIKE ?
+        LIMIT 1
+    """, (query, f'%{query}%'))
+    produto = cursor.fetchone()
+    conn.close()
+    return produto

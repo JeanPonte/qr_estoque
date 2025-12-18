@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 from functools import wraps
-from models import buscar_usuario, listar_tabelas, ler_tabela, buscar_produto_por_qr,registrar_movimentacao_no_banco
+from models import (buscar_usuario, listar_tabelas, ler_tabela,
+                     buscar_produto_por_qr,registrar_movimentacao_no_banco,buscar_produto_por_codigo_ou_nome)
 from werkzeug.security import check_password_hash
 
 app = Flask(__name__)
@@ -72,6 +73,24 @@ def registrar_movimentacao():
     registrar_movimentacao_no_banco(produto_id, tipo, quantidade, responsavel, observacao, usuario_id)
 
     return redirect(url_for('formulario'))
+
+@app.route('/buscar_produto')
+def buscar_produto():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return jsonify({"encontrado": False, "erro": "Parâmetro de busca vazio"})
+
+    produto = buscar_produto_por_codigo_ou_nome(query)
+    
+    if produto:
+        return jsonify({
+            "encontrado": True,
+            "codigo": produto["codigo_qr"],
+            "nome": produto["nome"],
+        })
+    else:
+        return jsonify({"encontrado": False})
+
 
 @app.route('/carregar_tabela/<tabela>')
 @login_required
