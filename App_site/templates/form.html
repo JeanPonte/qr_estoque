@@ -9,40 +9,74 @@
 <body>
 <div class="container mt-5">
     <h2>Registrar Movimentação</h2>
-    <div class="d-flex">
-    <a href="{{ url_for('homepage') }}" class="btn btn-secondary mt-4">Voltar à Home</a>
-    <form action="/registrar_movimentacao" method="POST" class="mt-4">
-        <div class="mb-3">
-            <label for="codigo_qr" class="form-label">Código QR</label>
-            <input type="text" id="codigo_qr" name="codigo_qr" class="form-control" required>
-        </div>
+    <div class="d-flex gap-4">
+        <!-- Formulário -->
+        <form action="/registrar_movimentacao" method="POST" class="mt-4 flex-grow-1">
+            <div class="mb-3">
+                <label for="codigo_qr" class="form-label">Código QR</label>
+                <input type="text" id="codigo_qr" name="codigo_qr" class="form-control" required>
+            </div>
 
-        <div class="mb-3">
-            <label for="quantidade" class="form-label">Quantidade</label>
-            <input type="number" step="0.01" id="quantidade" name="quantidade" class="form-control" required>
-        </div>
+            <div class="mb-3">
+                <label for="quantidade" class="form-label">Quantidade</label>
+                <input type="number" step="0.01" id="quantidade" name="quantidade" class="form-control" required>
+            </div>
 
-        <div class="mb-3">
-            <label for="tipo" class="form-label">Tipo</label>
-            <select id="tipo" name="tipo" class="form-select">
-                <option value="entrada">Entrada</option>
-                <option value="saida">Saída</option>
-            </select>
-        </div>
+            <div class="mb-3">
+                <label for="tipo" class="form-label">Tipo</label>
+                <select id="tipo" name="tipo" class="form-select">
+                    <option value="entrada">Entrada</option>
+                    <option value="saida">Saída</option>
+                </select>
+            </div>
 
-        <div class="mb-3">
-            <label for="responsavel" class="form-label">Responsável</label>
-            <input type="text" id="responsavel" name="responsavel" class="form-control">
-        </div>
+            <div class="mb-3">
+                <label for="responsavel" class="form-label">Responsável</label>
+                <input type="text" id="responsavel" name="responsavel" class="form-control">
+            </div>
 
-        <div class="mb-3">
-            <label for="observacao" class="form-label">Observação</label>
-            <textarea id="observacao" name="observacao" rows="3" class="form-control"></textarea>
-        </div>
+            <div class="mb-3">
+                <label for="observacao" class="form-label">Observação</label>
+                <textarea id="observacao" name="observacao" rows="3" class="form-control"></textarea>
+            </div>
 
-        <button type="submit" class="btn btn-primary">Registrar</button>
-    </form>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Registrar</button>
+                <a href="{{ url_for('homepage') }}" class="btn btn-secondary">Voltar à Home</a>
+            </div>
+        </form>
+
+        <!-- Campo de busca -->
+        <div class="mt-4" style="min-width: 300px;">
+            <h3>Buscar Produto</h3>
+            <input type="text" id="buscaProduto" placeholder="Digite o nome ou código" class="form-control mb-2">
+            <button class="btn btn-outline-primary w-100" onclick="buscarProduto()" type="button">Buscar</button>
+
+            <div id="resultadoProduto" class="mt-3"></div>
+        </div>
+    </div>
 </div>
+
+<script>
+function buscarProduto() {
+  const query = document.getElementById('buscaProduto').value;
+
+  fetch(`/buscar_produto?q=${encodeURIComponent(query)}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.encontrado) {
+        document.getElementById('resultadoProduto').innerHTML = `
+          <strong>Produto:</strong> ${data.nome}<br>
+          <strong>Código:</strong> ${data.codigo}<br>
+          <strong>Descrição:</strong> ${data.descricao}
+        `;
+        document.getElementById('codigo_qr').value = data.codigo;
+      } else {
+        document.getElementById('resultadoProduto').innerHTML = 'Produto não encontrado.';
+      }
+    });
+}
+</script>
 
 <!-- Bootstrap JS Bundle (opcional para componentes interativos) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
