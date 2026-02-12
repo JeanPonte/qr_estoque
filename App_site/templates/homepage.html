@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Minha Homepage</title>
+  <title>Homepage</title>
 
   <!-- Bootstrap CSS (CDN) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -49,25 +49,35 @@
       box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
       border-radius: 0.3rem;
     }
+
+    #resposta {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
   </style>
 </head>
 <body>
   <!-- Cabeçalho -->
   <div class="header d-flex justify-content-between align-items-center">
-    <h1 class="h4 m-0">Minha Homepage</h1>
+    <h1 class="h4 m-0">Homepage</h1>
 
     <!-- Botões lado a lado à direita -->
     <div class="d-flex">
-      <a href="{{ url_for('formulario') }}" class="btn btn-primary">Registrar Movimentação</a>
-      <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a>
-      <a href="{{ url_for('logout' )}}" class="btn btn-primary">Sair</a> 
+      <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Visualizar tabela</a>
+      <a href="{{ url_for('movimentacao') }}" class="btn btn-primary">Nova movimentação</a>
+      <a href="{{ url_for('logout' )}}" class="btn btn-primary">Sair da sessão</a> 
     </div>
   </div>
 
   <!-- Conteúdo Principal -->
   <div class="content text-center p-5">
-    <h2>Bem-vindo à sua homepage!</h2>
-    <p>Este é um exemplo básico usando Bootstrap.</p>
+    <h2>Em desenvolvimento</h2>
+    <p>Proximas atualizações:</p>
+    <p>📤 Importar dados</p>
+    <p>📊 Criar relatórios</p>
+    <p>Painel de visão geral</p>
+    <p>Mostrar informações da sessão (Login)</p>
   </div>
 
   <!-- Bootstrap JS (CDN) -->
