@@ -1,66 +1,164 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard AJAX</title>
+  <title>Dashboard Tabelas</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
   <style>
+    .header {
+      background-color: #343a40;
+      color: white;
+      padding: 15px 30px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-weight: 600;
+    }
+
+    /* Espaçamento entre os botões */
+    .header .btn + .btn {
+      margin-left: 12px;
+    }
+
+    .alert {
+      opacity: 1;
+      transition: opacity 0.6s;
+    }
+
     .data {
       width: 100%;
       margin-top: 20px;
       border-collapse: collapse;
     }
-    .data th, .data td {
+
+    .data th,
+    .data td {
       border: 1px solid #ddd;
       padding: 8px;
     }
+
     .data th {
       background-color: #f2f2f2;
     }
+
+    /* UX: deixa claro que a linha é clicável */
+    .data tbody tr {
+      cursor: pointer;
+    }
+
+    .data tbody tr:hover {
+      background-color: #e9ecef;
+    }
   </style>
 </head>
-<body class="p-4">
 
-  <h2 class="mb-4">Dashboard de Tabelas (AJAX)</h2>
+<body>
+    <!-- Cabeçalho -->
+  <div class="header d-flex justify-content-between align-items-center">
+    <h1 class="h4 m-0">Dashboard de Tabelas</h1>
 
-  <!-- Dropdown de tabelas -->
-  <div class="mb-3">
-    <label for="tabelaSelect" class="form-label">Escolha uma tabela:</label>
+    <!-- Botões lado a lado à direita -->
+    <div class="d-flex">
+      <a href="{{ url_for('movimentacao') }}" class="btn btn-primary">Movimentação</a>
+      <a href="{{ url_for('homepage') }}" class="btn btn-primary">Homepage</a>
+    </div>
+  </div>
+
+  <div class="mb-3 d-flex gap-2 align-items-end p-3">
+  <div class="flex-grow-1">
     <select id="tabelaSelect" class="form-select" onchange="carregarTabela(this.value)">
       <option selected disabled>-- Selecione uma tabela --</option>
       {% for tabela in tabelas %}
-        <option value="{{ tabela }}">{{ tabela }}</option>
+      <option value="{{ tabela }}">{{ tabela }}</option>
       {% endfor %}
     </select>
   </div>
 
-  <!-- Div onde a tabela será carregada -->
-  <div id="tabelaResultado">
-    <p>Selecione uma tabela para visualizar os dados.</p>
-  </div>
+  <button class="btn btn-primary" onclick="atualizarTabela()">
+    🔄 Atualizar
+  </button>
+</div>
 
-  <a href="{{ url_for('homepage') }}" class="btn btn-secondary mt-4">Voltar à Home</a>
+  <a href="{{ url_for('homepage') }}" class="btn btn-secondary">Voltar à Home 🏠</a>
 
-  <!-- JS AJAX -->
-  <script>
-    function carregarTabela(tabela) {
-      const tabelaResultado = document.getElementById('tabelaResultado');
-      tabelaResultado.innerHTML = '<p>Carregando...</p>';
+  <div id="tabelaResultado" class="p-3"></div>
+  
+<script>
+  var tab_use = '';
+  var carregando = false; // evita chamadas simultâneas
 
-      fetch(`/carregar_tabela/${tabela}`)
-        .then(response => {
-          if (!response.ok) throw new Error('Erro ao carregar tabela.');
-          return response.text();
-        })
-        .then(html => {
-          tabelaResultado.innerHTML = html;
-        })
-        .catch(error => {
-          tabelaResultado.innerHTML = '<p class="text-danger">Erro ao carregar os dados.</p>';
-          console.error(error);
-        });
+  function carregarTabela(tabela) {
+    if (carregando) return; // já tem requisição em andamento
+
+    carregando = true;
+    const tabelaResultado = document.getElementById('tabelaResultado');
+    tabelaResultado.innerHTML = '<p>Carregando...</p>';
+
+    fetch(`/carregar_tabela/${tabela}`)
+      .then(response => {
+        if (!response.ok) throw new Error('Erro ao carregar tabela');
+        return response.text();
+      })
+      .then(html => {
+        tab_use = tabela;
+        tabelaResultado.innerHTML = html;
+      })
+      .catch(() => {
+        tabelaResultado.innerHTML =
+          '<p class="text-danger">Erro ao carregar os dados.</p>';
+      })
+      .finally(() => {
+        carregando = false;
+      });
+  }
+
+  function atualizarTabela() {
+    if (!tab_use) {
+      alert("Selecione uma tabela primeiro.");
+      return;
     }
-  </script>
+    carregarTabela(tab_use);
+  }
+
+  // Função para mudar qrcode do input_qr 
+  // e além disso abre uma nova aba para impressão da etiqueta contendo esse qr
+  function mudarQrcode(id, qr) {
+    fetch(`/mudar_qrcode/${id}/${qr}`)
+      .then(response => response.text())
+      .then(novoQr => {
+        if (confirm("Deseja selecionar esse produto?")) {
+          window.open(`/etiqueta?qr=${encodeURIComponent(novoQr)}`, "_blank").focus(); //Nova Aba
+        }
+      })
+      .catch(() => alert("Erro ao mudar QR Code"));
+  }
+
+  // Evento ao clicar na linha (apenas tabela produtos)
+  document.addEventListener('click', function (e) {
+    if (tab_use == "produtos") {
+      const row = e.target.closest('.data tbody tr');
+      if (row) {
+        const id = row.rowIndex;
+        var row_selected = document.getElementsByTagName('tr')[id];
+        var qrcode = row_selected.getElementsByTagName('td')[4].textContent;
+        mudarQrcode(id, qrcode);
+      }
+    }
+  });
+
+  // AUTO ATUALIZAÇÃO A CADA 30s 
+  setInterval(() => {
+    if (tab_use && !document.hidden && !carregando) {
+      carregarTabela(tab_use);
+    }
+  }, 30000);
+</script>
+
 
 </body>
+
 </html>
