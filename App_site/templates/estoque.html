@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Estoque</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  {% set titulo = "Estoque" %}
+  {% set botoes %}
+    <a href="{{ url_for('homepage') }}" class="btn btn-primary ms-2">Voltar</a>
+    <a href="{{ url_for('estoque') }}" class="btn btn-primary ms-2">Atualizar</a>
+  {% endset %}
+
+  {% include "partials/header.html" %}
+
+  <div class="container">
+
+    <div class="row mt-3 mb-2">
+    <div class="col-md-4">
+      <input type="text" id="campoBusca" class="form-control"
+            placeholder="Buscar no estoque..." autocomplete="off">
+    </div>
+    </div>
+
+    <div id="tabelaResultado">
+      {% if estoque %}
+      <table class="table table-striped table-hover table-bordered table-sm">
+      <thead>
+          <tr>
+          <th>Id</th>
+          <th>Nome</th>
+          <th>Categoria</th>
+          <th>Estoque</th>
+          </tr>
+      </thead>
+      <tbody>
+          {% for item in estoque %}
+          <tr>
+          <td>{{ item.id }}</td>
+          <td>{{ item.nome }}</td>
+          <td>{{ item.categoria }}</td>
+          <td>{{ item.quantidade }}</td>
+          </tr>
+          {% endfor %}
+      </tbody>
+      </table>
+      {% endif %}
+          </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</body>
+
+<script>
+  const campoBusca = document.getElementById("campoBusca");
+
+  if (campoBusca) {
+    campoBusca.addEventListener("input", function () {
+
+      const termo = this.value;
+
+      fetch(`/buscar_tabela/estoque_legivel?termo=` + encodeURIComponent(termo))
+        .then(resp => {
+          if (!resp.ok) throw new Error();
+          return resp.text();
+        })
+        .then(html => {
+          document.getElementById("tabelaResultado").innerHTML = html;
+        })
+        .catch(() => {
+          console.log("Erro na busca");
+        });
+    });
+  }
+</script>
+
+</html>

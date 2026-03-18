@@ -1,0 +1,22 @@
+{% if dados %}
+<table class="table table-striped table-hover table-bordered table-sm">
+    <thead>
+        <tr>
+            {% for col in dados[0].keys() %}
+                <th>{{ col }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for linha in dados %}
+        <tr data-id="{{ linha['id'] }}" data-qr="{{ linha['codigo_qr'] }}">
+            {% for valor in linha %}
+                <td>{{ valor }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Nenhum resultado.</p>
+{% endif %}

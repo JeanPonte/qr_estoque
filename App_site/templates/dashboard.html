@@ -5,94 +5,76 @@
   <meta charset="UTF-8">
   <title>Dashboard Tabelas</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <style>
-    .header {
-      background-color: #343a40;
-      color: white;
-      padding: 15px 30px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .header h1 {
-      font-weight: 600;
-    }
-
-    /* Espaçamento entre os botões */
-    .header .btn + .btn {
-      margin-left: 12px;
-    }
-
-    .alert {
-      opacity: 1;
-      transition: opacity 0.6s;
-    }
-
-    .data {
-      width: 100%;
-      margin-top: 20px;
-      border-collapse: collapse;
-    }
-
-    .data th,
-    .data td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-
-    .data th {
-      background-color: #f2f2f2;
-    }
-
-    /* UX: deixa claro que a linha é clicável */
-    .data tbody tr {
-      cursor: pointer;
-    }
-
-    .data tbody tr:hover {
-      background-color: #e9ecef;
-    }
-  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  
 </head>
 
-<body>
-    <!-- Cabeçalho -->
-  <div class="header d-flex justify-content-between align-items-center">
-    <h1 class="h4 m-0">Dashboard de Tabelas</h1>
+<body class="bg-light">
 
-    <!-- Botões lado a lado à direita -->
-    <div class="d-flex">
-      <a href="{{ url_for('movimentacao') }}" class="btn btn-primary">Movimentação</a>
-      <a href="{{ url_for('homepage') }}" class="btn btn-primary">Homepage</a>
+{% set titulo = "Dashboard" %}
+  {% set botoes %}
+    <a href="{{ url_for('homepage') }}" class="btn btn-primary ms-2">Voltar</a>
+  {% endset %}
+
+  {% include "partials/header.html" %}
+
+  <!-- CONTROLES -->
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <select id="tabelaSelect" class="form-select"
+              onchange="carregarTabela(this.value)">
+        <option selected disabled>Selecione uma tabela</option>
+        {% for tabela in tabelas %}
+        <option value="{{ tabela }}">{{ tabela }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-primary" onclick="atualizarTabela()">
+        Atualizar
+      </button>
+    </div>
+
+    <div class="col-md-4">
+      <input type="text" id="campoBusca" class="form-control"
+             placeholder="Buscar na tabela..." autocomplete="off">
     </div>
   </div>
 
-  <div class="mb-3 d-flex gap-2 align-items-end p-3">
-  <div class="flex-grow-1">
-    <select id="tabelaSelect" class="form-select" onchange="carregarTabela(this.value)">
-      <option selected disabled>-- Selecione uma tabela --</option>
-      {% for tabela in tabelas %}
-      <option value="{{ tabela }}">{{ tabela }}</option>
-      {% endfor %}
-    </select>
+  <!-- CONTEÚDO -->
+  <div class="row mt-3">
+    <div class="col">
+      <div class="card shadow-sm">
+        <div class="card-body">
+
+          <div id="tabelaResultado">
+            <p class="text-muted m-0">Selecione uma tabela para visualizar.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
   </div>
 
-  <button class="btn btn-primary" onclick="atualizarTabela()">
-    🔄 Atualizar
-  </button>
+  <!-- RODAPÉ / AÇÕES -->
+  <div class="row mt-3 mb-4">
+    <div class="col">
+      <a href="{{ url_for('homepage') }}" class="btn btn-secondary btn-sm">
+        Voltar à Home
+      </a>
+    </div>
+  </div>
+
 </div>
-
-  <a href="{{ url_for('homepage') }}" class="btn btn-secondary">Voltar à Home 🏠</a>
-
-  <div id="tabelaResultado" class="p-3"></div>
   
 <script>
   var tab_use = '';
-  var carregando = false; // evita chamadas simultâneas
+  var carregando = false; // Evita chamadas simultâneas
 
   function carregarTabela(tabela) {
-    if (carregando) return; // já tem requisição em andamento
+    if (carregando) return; // Já tem requisição em andamento
 
     carregando = true;
     const tabelaResultado = document.getElementById('tabelaResultado');
@@ -139,23 +121,50 @@
 
   // Evento ao clicar na linha (apenas tabela produtos)
   document.addEventListener('click', function (e) {
-    if (tab_use == "produtos") {
-      const row = e.target.closest('.data tbody tr');
-      if (row) {
-        const id = row.rowIndex;
-        var row_selected = document.getElementsByTagName('tr')[id];
-        var qrcode = row_selected.getElementsByTagName('td')[4].textContent;
-        mudarQrcode(id, qrcode);
-      }
-    }
-  });
+
+  if (tab_use !== "produtos") return;
+
+  const row = e.target.closest('.data tbody tr');
+  console.log(row)
+  if (!row) return;
+  
+  const id = row.dataset.id;
+  const qrcode = row.dataset.qr;
+  if (!id || !qrcode) return;
+
+  mudarQrcode(id, qrcode);
+});
 
   // AUTO ATUALIZAÇÃO A CADA 30s 
-  setInterval(() => {
-    if (tab_use && !document.hidden && !carregando) {
-      carregarTabela(tab_use);
-    }
-  }, 30000);
+  // setInterval(() => {
+  //   if (tab_use && !document.hidden && !carregando) {
+  //     carregarTabela(tab_use);
+  //   }
+  // }, 30000);
+
+  const campoBusca = document.getElementById("campoBusca");
+
+  if (campoBusca) {
+    campoBusca.addEventListener("input", function () {
+
+      if (!tab_use) return;
+
+      const termo = this.value;
+
+      fetch(`/buscar_tabela/${tab_use}?termo=` + encodeURIComponent(termo))
+        .then(resp => {
+          if (!resp.ok) throw new Error();
+          return resp.text();
+        })
+        .then(html => {
+          document.getElementById("tabelaResultado").innerHTML = html;
+        })
+        .catch(() => {
+          console.log("Erro na busca");
+        });
+    });
+  }
+  
 </script>
 
 

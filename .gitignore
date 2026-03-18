@@ -17,4 +17,5 @@ App_site/criar_usuario.py
 #Outros
 /Processo
 /pacotes_offline
-/dados_qr/etiqueta_1.prn
+/dados_qr
+/credenciais.json

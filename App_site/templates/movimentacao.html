@@ -4,47 +4,18 @@
     <title>Movimentações</title>
     <base target="_top">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #f8f9fa;
-    }
-
-    .header {
-      background-color: #343a40;
-      color: white;
-      padding: 15px 30px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .header h1 {
-      font-weight: 600;
-    }
-
-    /* Espaçamento entre os botões */
-    .header .btn + .btn {
-      margin-left: 12px;
-    }
-
-    #resposta {
-      margin-top: 15px;
-      font-weight: bold;
-    }
-
-  </style>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
   <body>
     <body>
   <!-- Cabeçalho -->
-  <div class="header d-flex justify-content-between align-items-center">
-    <h1 class="h4 m-0">Movimentação</h1>
+    {% set titulo = "Movimentação" %}
+    {% set botoes %}
+      <a href="{{ url_for('homepage') }}" class="btn btn-primary ms-2">Voltar</a>
+    {% endset %}
 
-    <!-- Botões lado a lado à direita -->
-    <div class="d-flex">
-      <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Dashboard</a>
-      <a href="{{ url_for('homepage') }}" class="btn btn-primary">Homepage</a>
-    </div>
-  </div>
+    {% include "partials/header.html" %}
 
     <div class="container text-center p-5">
       <h4 class="mb-3 text-primary">Leitura de QR Code</h4>
@@ -61,14 +32,6 @@
       <div class="p-3" id="Observacao">
         <p>Observação: Para lançar manualmente, digite o codigo QR unico e aperte ENTER</p>
       </div>
-      
-      <!-- Adicionar camera para leitura (Descobri que só funciona com https) -->
-      <!-- <button class="btn btn-success mt-2 w-100" onclick="iniciarCamera()">
-        📷 Ler QR Code com a câmera
-      </button>
-
-      <video id="video" class="mt-3 w-100" style="display:none; border-radius:8px;"></video>
-      <canvas id="canvas" style="display:none;"></canvas> -->
 
       <div id="resposta"></div>
 
