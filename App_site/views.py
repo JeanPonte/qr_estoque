@@ -60,7 +60,14 @@ def login():
         if usuario and check_password_hash(usuario[2], password):
             session['user'] = {'id': usuario[0], 'username': usuario[1],'role': usuario[3]}
             session.permanent = False
-            return redirect(url_for('homepage'))
+            role = usuario[3]   
+            
+            if role == 'producao':
+                return redirect(url_for('pedido'))
+            elif role == 'escritorio': 
+                return redirect(url_for('ordens'))
+            else:
+                return redirect(url_for('homepage'))
         else:
             flash('Usuário ou senha incorretos.')
     return render_template('login.html')
@@ -71,7 +78,7 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/formulario')
-@role_required('admin')
+@role_required('admin','owner')
 def formulario():
     return render_template('form.html')
 
@@ -111,7 +118,7 @@ def carregar_tabela(tabela):
     )
 
 @app.route('/mudar_qrcode/<int:id>/<qr>') #Alterar arquivo input_qr
-@role_required('admin')
+@role_required('admin','owner')
 @login_required
 def mudar_input_qr(id,qr):
     quantidade_linhas = int(quant_no_bd(id))
@@ -122,18 +129,18 @@ def mudar_input_qr(id,qr):
     return qr
 
 @app.route('/dashboard')
-@role_required('admin')
+@role_required('admin','owner')
 def dashboard():
     tabelas = listar_tabelas()
     return render_template('dashboard.html', tabelas=tabelas)
 
 @app.route('/etiqueta')
-@role_required('admin')
+@role_required('admin','owner')
 def etiqueta():
     return render_template('etiquetas.html')
 
 @app.route('/abrir_exe', methods=['POST'])
-@role_required('admin')
+@role_required('admin','owner')
 def abrir_exe():
     bartender = r"C:/Program Files (x86)/Seagull/BarTender Suite/bartend.exe" #Caminho do Bartender 
     arquivo_btw = r"C:/Users/Jnpx_/Desktop/33x22 qrcode.btw" #Caminho da etiqueta
@@ -144,13 +151,13 @@ def abrir_exe():
         return jsonify({"status": str(e)}), 500
     
 @app.route('/movimentacao')
-@role_required('admin')
+@role_required('admin','owner')
 def movimentacao():
     return render_template('movimentacao.html')
 
 #Retirei o @Login_required de algumas route pois dava erro, não é seguro fazer isso. Vou consertar depois 
 @app.route('/movimentacao/<qr>/<id_unico>')
-@role_required('admin')
+@role_required('admin','owner')
 def registrar_movimentacao(qr, id_unico):
     qr_completo = f"{qr}/{id_unico}"
 
@@ -191,23 +198,23 @@ def buscar_ajax(tabela):
         )
 
 @app.route("/estoque")
-@role_required('admin')
+@role_required('admin','owner')
 def estoque():
     dados = estoque_view()
     return render_template("estoque.html", estoque=dados)
 
 @app.route("/pedido")
 @login_required
+@role_required('producao','owner')
 def pedido():
     return render_template("entrada_pedido.html")
 
 @app.route("/ordens")
 @login_required
+@role_required('escritorio','admin','owner')
 def ordens():
     dados = ordens_view()
     return render_template("ordens.html", pedidos=dados)
-
-from datetime import datetime
 
 @app.template_filter('data_br')
 def data_br(valor):
@@ -235,7 +242,7 @@ def default_br(valor):
 usuarios = ["Nicolas", "Domingos", "Josemir"]
 
 @app.route("/obter-nomes", methods=["GET"])
-@role_required('admin')
+@role_required('admin','owner')
 def obter_nomes():
     return jsonify(usuarios)
 

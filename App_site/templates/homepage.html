@@ -15,17 +15,17 @@
   {% set titulo = "Homepage" %}
 
 {% set botoes %}
-  {% if user.role == 'admin' %}
+  {% if user.role == 'admin' or user.role == 'owner' %}
     <a href="{{ url_for('estoque') }}" class="btn btn-primary">Estoque</a>
     <a href="{{ url_for('ordens') }}" class="btn btn-primary">Entrada pedidos</a>
     <a href="{{ url_for('dashboard') }}" class="btn btn-primary ms-2">Visualizar tabela</a>
     <a href="{{ url_for('movimentacao') }}" class="btn btn-primary ms-2">Nova movimentação</a>
-    <a href="{{ url_for('pedidos') }}" class="btn btn-primary">Entrada Pedidos</a>
-  {% else %}
+    <a href="{{ url_for('pedido') }}" class="btn btn-primary">Entrada Pedidos</a>
+  {% elif user.role == 'escritorio' %}
     <a href="{{ url_for('ordens') }}" class="btn btn-primary">Tabela Pedidos</a>
+  {% else %}
     <a href="{{ url_for('pedido') }}" class="btn btn-primary">Entrada pedidos</a>
   {% endif %}
-
   <a href="{{ url_for('logout') }}" class="btn btn-primary ms-2">Sair</a>
 {% endset %}
 
