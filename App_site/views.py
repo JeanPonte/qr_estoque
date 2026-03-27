@@ -239,10 +239,10 @@ def default_br(valor):
     return valor if valor not in (None, '', 'None') else '-'
 
 # Simulação de banco
-usuarios = ["Nicolas", "Domingos", "Josemir"]
+usuarios = ["Nicholas", "Domingos", "Josemir"]
 
 @app.route("/obter-nomes", methods=["GET"])
-@role_required('admin','owner')
+@login_required
 def obter_nomes():
     return jsonify(usuarios)
 

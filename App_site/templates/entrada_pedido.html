@@ -150,6 +150,7 @@ function registrar() {
       status: status
     })
   })
+  .then(response => response.json())
   .then(data => {
 
     resposta.innerText = data.msg;

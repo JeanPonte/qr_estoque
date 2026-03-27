@@ -7,9 +7,10 @@ from datetime import datetime, timedelta
 import sqlite3 
 
 #Banco de dados Usuário/login
-def conectar_user_db(): 
+
+def conectar_user_db():
     os.makedirs('instance', exist_ok=True)
-    return sqlite3.connect('instance/banco.sqlite') #Conexão com banco de dados (Verificar Local do DB)
+    return sqlite3.connect(f'{os.getcwd()}/instance/banco.sqlite') #Conexão com banco de dados (Verificar Local do DB)
 
 def criar_tabela_usuarios(): #Usado para criar tabela usuário (Chamada apenas uma vez)
     conn = conectar_user_db()
