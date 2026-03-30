@@ -1,5 +1,7 @@
 #TEMPS
 App_site/__pycache__
+__pycache__/
+*.pyc
 
 #Ambiente virtual
 .venv/
@@ -19,3 +21,4 @@ App_site/criar_usuario.py
 /pacotes_offline
 /dados_qr
 /credenciais.json
+/mudar_sql.py
