@@ -143,7 +143,7 @@ def etiqueta():
 @role_required('admin','owner')
 def abrir_exe():
     bartender = r"C:/Program Files (x86)/Seagull/BarTender Suite/bartend.exe" #Caminho do Bartender 
-    arquivo_btw = r"C:/Users/Jnpx_/Desktop/33x22 qrcode.btw" #Caminho da etiqueta
+    arquivo_btw = os.path.join(os.getcwd(), "template_etiqueta", "33x22 qrcode.btw") #Caminho da etiqueta
     try:
         subprocess.Popen([bartender, arquivo_btw,'/P','/C=3','/X'],shell=False) #/C é a quantidade de etiquetas impressas 
         return jsonify({"status": "Imprimindo"})
