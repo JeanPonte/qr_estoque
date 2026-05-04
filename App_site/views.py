@@ -264,3 +264,31 @@ def registrar():
     resultado = registrar_pedido(qr, volume, quem, quantidade, status)
 
     return jsonify(resultado)
+
+@app.route('/inventario')
+@login_required
+def inventario():
+    return render_template('inventario.html')
+
+@app.route('/inventario/consultar')
+@login_required
+def consultar_inventario():
+    qr = request.args.get('qr')
+
+    if not qr:
+        return jsonify({"erro": "QR não informado"})
+
+    qr_base = qr.split('/')[0]
+
+    produto = buscar_produto_por_codigo_ou_nome(qr_base)
+
+    if not produto:
+        return jsonify({"erro": "Produto não encontrado"})
+
+    produto_id = produto["id"]
+    quantidade = quant_no_bd(produto_id) 
+
+    return jsonify({
+        "nome": produto["nome"],
+        "quantidade_estoque": quantidade
+    })

@@ -80,15 +80,18 @@ def buscar_produto_por_qr(codigo_qr,tabela,coluna):
     conn.close()
     return produto["id"] if produto else None # Retorna o id do produto
 
-def quant_no_bd(id): #Usado para mostrar quantidades de itens com mesmo ID bando de dados 
+def quant_no_bd(produto_id):
     conn = conectar_estoque_db()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT COUNT(*) FROM movimentacoes WHERE produto_id = ?;",(id,) 
-    )
-    quantidade_linhas = cursor.fetchone()[0]
+
+    cursor.execute("""
+        SELECT quantidade FROM estoque WHERE produto_id = ?
+    """, (produto_id,))
+
+    resultado = cursor.fetchone()
     conn.close()
-    return quantidade_linhas or 0
+
+    return resultado[0] if resultado else 0
 
 def registrar_movimentacao_por_qr(qr_completo, produto_id, observacao=""):
     with conectar_estoque_db() as conn:
